@@ -1,11 +1,33 @@
+use std::io;
+use std::io::prelude::*;
+use std::fs::File;
+
 const RAM_SIZE: usize = 4096;
 
 fn main() {
-    let cpu = &mut Cpu::new();
+    // let cpu = &mut Cpu::new();
+    // let program = vec![0xaa; 20];
+    // cpu.load_program(program);
 
-    let program = vec![0xaa; 20];
+
+    let fname = String::from("./roms/games/Nim [Carmelo Cortez, 1978].ch8");
+    open_program(fname);
+}
+
+// TODO Finish method
+fn open_program(fname: String)-> io::Result<()> {
+    println!("Opening file: {}...", fname);
+
+    let mut f = File::open(fname)?;
+    let mut buffer = [0; 10];
     
-    cpu.load_program(program);
+    f.read(&mut buffer);
+
+    for byte in buffer.iter() {
+        println!("Byte: 0x{:0x}", byte);
+    }
+
+    Ok(())
 }
 
 struct Cpu {
@@ -38,6 +60,10 @@ impl Cpu {
     fn load_program(&mut self, program: Vec<u8>){
         for (index, instr) in program.iter().enumerate() {
             self.ram[0x200 + index] = *instr;
+        }
+
+        for i in 0x200..(0x200+20) {
+            println!("Instr: {:0x}", self.ram[i]);
         }
     }
 }
