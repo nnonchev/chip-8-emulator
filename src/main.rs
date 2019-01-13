@@ -4,6 +4,7 @@ fn main() {
     let cpu = &mut Cpu::new();
 
     let program = vec![0xaa; 20];
+    
     cpu.load_program(program);
 }
 
@@ -33,15 +34,10 @@ impl Cpu {
             SP: 0
         }
     }
-
+    
     fn load_program(&mut self, program: Vec<u8>){
         for (index, instr) in program.iter().enumerate() {
-            // println!("Instruction: [{:0x}]{:0x}", (0x200+index), instr);
             self.ram[0x200 + index] = *instr;
-        }
-
-        for i in 0x200..(0x200+20) {
-            println!("Instr: {:0x}", self.ram[i]);
         }
     }
 }
