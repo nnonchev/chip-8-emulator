@@ -5,29 +5,12 @@ use std::fs::File;
 const RAM_SIZE: usize = 4096;
 
 fn main() {
-    // let cpu = &mut Cpu::new();
-    // let program = vec![0xaa; 20];
-    // cpu.load_program(program);
-
+    let cpu = &mut Cpu::new();
 
     let fname = String::from("./roms/games/Nim [Carmelo Cortez, 1978].ch8");
-    open_program(fname);
-}
 
-// TODO Finish method
-fn open_program(fname: String)-> io::Result<()> {
-    println!("Opening file: {}...", fname);
-
-    let mut f = File::open(fname)?;
-    let mut buffer = [0; 10];
-    
-    f.read(&mut buffer);
-
-    for byte in buffer.iter() {
-        println!("Byte: 0x{:0x}", byte);
-    }
-
-    Ok(())
+    cpu.load_progran(fname);
+    cpu.run();
 }
 
 struct Cpu {
@@ -57,13 +40,38 @@ impl Cpu {
         }
     }
     
-    fn load_program(&mut self, program: Vec<u8>){
-        for (index, instr) in program.iter().enumerate() {
-            self.ram[0x200 + index] = *instr;
-        }
+    fn load_progran(&mut self, fname: String) -> io::Result<()> {
+            let mut f = File::open(fname)?;
+            let mut buffer = Vec::new();
 
-        for i in 0x200..(0x200+20) {
-            println!("Instr: {:0x}", self.ram[i]);
+            f.read_to_end(&mut buffer)?;
+
+            for (index, instr) in buffer.iter().enumerate() {
+                self.ram[0x200 + index] = *instr;
+            }
+
+            Ok(())
+    }
+
+    fn display_ram(& self) {
+        let mut index = 0x200;
+        while self.ram[index] != 0x0 {
+            println!("0x{:0x} -> 0x{:0x}", index, self.ram[index]);
+            index += 1;
         }
+    }
+
+    /* Seperate each instruction (16 bytes) to opcodes */
+    fn run(& self) {
+        // println!("First instr 1: 0x{:0x}", self.ram[0x200]);
+        // println!("First instr 2: 0x{:0x}", self.ram[0x200+1]);
+        let opcode1 = (self.ram[0x200] & 0xf0) >> 4;
+        let opcode2 = self.ram[0x200] & 0x0f;
+        let opcode3 = (self.ram[0x200+1] & 0xf0) >> 4;
+        let opcode4 = self.ram[0x200+1] & 0x0f;
+        // println!("partial 1 instr: 0x{:0x}", opcode1);
+        // println!("Partial 2 instr: 0x{:0x}", opcode2);
+        // println!("partial 3 instr: 0x{:0x}", opcode3);
+        // println!("Partial 4 instr: 0x{:0x}", opcode4);
     }
 }
