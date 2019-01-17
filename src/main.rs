@@ -67,6 +67,8 @@ impl Cpu {
         loop {
             println!("0x{:0x}+1 -> 0x{:0x}{:0x}", i, self.ram[i], self.ram[i+1]);
 
+            // TODO bug when shifting
+
 //            let mut addr: u16 = (op2 as u16) << 0x08;
 //            addr += (op3 as u16) << 0x04;
 //            addr += op4 as u16;
