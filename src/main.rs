@@ -63,15 +63,197 @@ impl Cpu {
 
     /* Seperate each instruction (16 bytes) to opcodes */
     fn run(& self) {
-        // println!("First instr 1: 0x{:0x}", self.ram[0x200]);
-        // println!("First instr 2: 0x{:0x}", self.ram[0x200+1]);
-        let opcode1 = (self.ram[0x200] & 0xf0) >> 4;
-        let opcode2 = self.ram[0x200] & 0x0f;
-        let opcode3 = (self.ram[0x200+1] & 0xf0) >> 4;
-        let opcode4 = self.ram[0x200+1] & 0x0f;
-        // println!("partial 1 instr: 0x{:0x}", opcode1);
-        // println!("Partial 2 instr: 0x{:0x}", opcode2);
-        // println!("partial 3 instr: 0x{:0x}", opcode3);
-        // println!("Partial 4 instr: 0x{:0x}", opcode4);
+        let mut i: usize = 0x200;
+        loop {
+            println!("0x{:0x}+1 -> 0x{:0x}{:0x}", i, self.ram[i], self.ram[i+1]);
+
+//            let mut addr: u16 = (op2 as u16) << 0x08;
+//            addr += (op3 as u16) << 0x04;
+//            addr += op4 as u16;
+
+//            let op1 = (self.ram[i] & 0xf0) >> 4;
+//            let op2 = self.ram[i] & 0x0f;
+//            let op3 = (self.ram[i+1] & 0xf0) >> 4;
+//            let op4 = self.ram[i+1] & 0x0f;
+
+            println!("op1: {:0x}, op2: {:0x}, op3: {:0x}, op4: {:0x}", op1, op2, op3, op4);
+
+//            self._parse_instr(op1, op2, op3, op4);
+
+            i += 2;
+
+            if (i+1) >= RAM_SIZE { break; }
+        }
+    }
+
+    fn _parse_instr(& self, op1: u8, op2: u8, op3: u8, op4: u8) {
+        match op1 {
+            0x0 => {
+                let mut sub_op: u16 = (op2 as u16) << 0x08;
+                sub_op += (op3 as u16) << 0x04;
+                sub_op += op4 as u16;
+
+                match sub_op {
+                    0x0e0 => {
+                        println!("CLS");
+                    },
+                    0x0ee => {
+                        println!("RET");
+                    },
+                    _ => {
+                        println!("SYS 0x{:0x}", sub_op);
+                    }
+                }
+            },
+            0x1 => {
+                let mut addr: u16 = (op2 as u16) << 0x08;
+                addr += (op3 as u16) << 0x04;
+                addr += op4 as u16;
+
+                println!("JP 0x{:0x}", addr);
+            },
+            0x2 => {
+                let mut addr: u16 = (op2 as u16) << 0x08;
+                addr += (op3 as u16) << 0x04;
+                addr += op4 as u16;
+
+                println!("CALL 0x{:0x}", addr);
+            },
+            0x3 => {
+                let mut byte: u8 = op3 << 4;
+                byte += op4;
+
+                println!("SE V{:0x}, 0x{:0x}", op2, byte);
+            },
+            0x4 => {
+                let mut byte: u8 = op3 << 4;
+                byte += op4;
+
+                println!("SNE V{:0x}, 0x{:0x}", op2, byte);
+            },
+            0x5 => {
+                println!("SE V{:0x}, V{:0x}", op2, op3);
+            },
+            0x6 => {
+                let mut byte: u8 = op3 << 4;
+                byte += op4;
+
+                println!("LD V{:0x}, 0x{:0x}", op2, byte);
+            },
+            0x7 => {
+                let mut byte: u8 = op3 << 4;
+                byte += op4;
+
+                println!("ADD V{:0x}, 0x{:0x}", op2, byte);
+            },
+            0x8 => {
+                match op4 {
+                    0x0 => {
+                        println!("LD V{:0x}, V{:0x}", op2, op3);
+                    },
+                    0x1 => {
+                        println!("OR V{:0x}, V{:0x}", op2, op3);
+                    },
+                    0x2 => {
+                        println!("AND V{:0x}, V{:0x}", op2, op3);
+                    },
+                    0x3 => {
+                        println!("XOR V{:0x}, V{:0x}", op2, op3);
+                    },
+                    0x4 => {
+                        println!("ADD V{:0x}, V{:0x}", op2, op3);
+                    },
+                    0x5 => {
+                        println!("SUB V{:0x}, V{:0x}", op2, op3);
+                    },
+                    0x6 => {
+                        println!("SHR V{:0x}, [V{:0x}]", op2, op3);
+                    },
+                    0x7 => {
+                        println!("SUBN V{:0x}, V{:0x}", op2, op3);
+                    },
+                    0xe => {
+                        println!("SHL V{:0x}, V{:0x}", op2, op3);
+                    },
+                    _ => println!("Error in sub instruction 8xy{}", op4),
+                }
+            },
+            0x9 => {
+                println!("SNE V{:0x}, V{:0x}", op2, op3);
+            },
+            0xa => {
+                let mut addr: u16 = (op2 as u16) << 0x08;
+                addr += (op3 as u16) << 0x04;
+                addr += op4 as u16;
+
+                println!("LD I, 0x{:0x}", addr);
+            },
+            0xb => {
+                let mut addr: u16 = (op2 as u16) << 0x08;
+                addr += (op3 as u16) << 0x04;
+                addr += op4 as u16;
+
+                println!("JP V0, 0x{:0x}", addr);
+            },
+            0xc => {
+                let mut byte: u8 = op3 << 4;
+                byte += op4;
+
+                println!("RND V{:0x}, 0x{:0x}", op2, byte);
+            },
+            0xd => {
+                println!("DRW V{:0x}, V{:0x}, 0x{:0x}", op2, op3, op4);
+            },
+            0xe => {
+                let mut sub_op: u8 = op3 << 4;
+                sub_op += op4;
+
+                match sub_op {
+                    0x9e => {
+                        println!("SKP V{:0x}", op2);
+                    },
+                    0xa1 => {
+                        println!("SKNP V{:0x}", op2);
+                    },
+                    _ => println!("Error in sub instruction ex{}", sub_op),
+                }
+            },
+            0xf => {
+                let mut sub_op: u8 = op3 << 4;
+                sub_op += op4;
+
+                match sub_op {
+                    0x07 => {
+                        println!("LD V{:0x}, DT", op2);
+                    },
+                    0x0a => {
+                        println!("LD V{:0x}, K", op2);
+                    },
+                    0x15 => {
+                        println!("LD DT, V{:0x}", op2);
+                    },
+                    0x18 => {
+                        println!("LD ST, V{:0x}", op2);
+                    },
+                    0x1e => {
+                        println!("ADD I, V{:0x}", op2);
+                    },
+                    0x29 => {
+                        println!("LD F, V{:0x}", op2);
+                    },
+                    0x33 => {
+                        println!("LD B, V{:0x}", op2);
+                    },
+                    0x55 => {
+                        println!("LD [I], V{:0x}", op2);
+                    },
+                    0x65 => {
+                        println!("LD V{:0x}, [I]", op2);
+                    }
+                    _ => println!("Error in sub instruction fx{}", sub_op),
+                }
+            },
+            _ => println!("Error opcode not found: 0x{:0x}", op1)
+        }
     }
 }
