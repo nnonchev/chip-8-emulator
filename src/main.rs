@@ -70,12 +70,12 @@ impl Cpu {
             // TODO bug when shifting
 
 //            let mut addr: u16 = (op2 as u16) << 0x08;
-//            addr += (op3 as u16) << 0x04;
-//            addr += op4 as u16;
+            addr += (op3 as u16) << 0x04;
+            addr += op4 as u16;
 
-//            let op1 = (self.ram[i] & 0xf0) >> 4;
-//            let op2 = self.ram[i] & 0x0f;
-//            let op3 = (self.ram[i+1] & 0xf0) >> 4;
+            let op1 = (self.ram[i] & 0xf0) >> 4;
+            let op2 = self.ram[i] & 0x0f;
+            let op3 = (self.ram[i+1] & 0xf0) >> 4;
 //            let op4 = self.ram[i+1] & 0x0f;
 
             println!("op1: {:0x}, op2: {:0x}, op3: {:0x}, op4: {:0x}", op1, op2, op3, op4);
